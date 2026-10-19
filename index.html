@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Inventario y Ventas</title>
+    <title>Sistema de Inventario y venta</title>
     <!-- Font Awesome para íconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -72,7 +72,7 @@
             color: var(--success-color);
         }
 
-        /* --- SECCIÓN DE VENTAS --- */
+        /* --- SECCIÓN DE venta --- */
         .sale-section {
             background: white;
             padding: 2rem;
@@ -180,6 +180,16 @@
                     <label for="productSelect">Seleccione un producto:</label>
                     <select id="productSelect"></select>
                 </div>
+
+
+<div class="form-group">
+    <label for="tipoPrecio">Tipo de precio:</label>
+    <select id="tipoPrecio">
+        <option value="regular">Precio regular</option>
+        <option value="oferta">Precio de oferta</option>
+    </select>
+</div>
+
                 <div class="form-group">
                     <label for="quantityInput">Cantidad:</label>
                     <input type="number" id="quantityInput" min="1" value="1">
@@ -211,99 +221,138 @@
     <script>
         // 1. Base de datos inicial con tus productos
         let productos = [
-            { id: 1, nombre: "Pan", compra: 38, venta: 50, stock: 100 },
-            { id: 2, nombre: "Galletas de pan", compra: 40, venta: 50, stock: 100 },
-            { id: 3, nombre: "Dolly", compra: 175, venta: 200, stock: 100 },
-            { id: 4, nombre: "Mantecado", compra: 100, venta: 125, stock: 100 },
-            { id: 5, nombre: "Cortado", compra: 85, venta: 100, stock: 100 },
-            { id: 6, nombre: "Ojadra", compra: 85, venta: 100, stock: 100 },
-            { id: 7, nombre: "Galletas de ajo", compra: 180, venta: 200, stock: 100 },
-            { id: 8, nombre: "Rabito", compra: 85, venta: 100, stock: 100 },
-            { id: 9, nombre: "Dulce de Leche", compra: 85, venta: 100, stock: 100 },
-            { id: 10, nombre: "Suspiro", compra: 85, venta: 100, stock: 100 },
-            { id: 11, nombre: "Palito de ajo", compra: 100, venta: 125, stock: 100 },
-            { id: 12, nombre: "Pastelitos", compra: 85, venta: 100, stock: 100 },
-            { id: 13, nombre: "Coquito", compra: 85, venta: 100, stock: 100 },
-            { id: 14, nombre: "Torta amarilla", compra: 85, venta: 100, stock: 100 },
-            { id: 15, nombre: "Cocada", compra: 85, venta: 100, stock: 100 },
-            { id: 16, nombre: "Azucarada", compra: 85, venta: 100, stock: 100 },
-            { id: 17, nombre: "Mofin", compra: 85, venta: 100, stock: 100 },
-            { id: 18, nombre: "Pisina", compra: 85, venta: 100, stock: 100 },
-            { id: 19, nombre: "Polvorín", compra: 85, venta: 100, stock: 100 },
-            { id: 20, nombre: "Pudín", compra: 40, venta: 50, stock: 100 }
+            { id: 1, nombre: "Pan", compra: 38, venta: 50, oferta: 45 , stock: 100 },
+            { id: 2, nombre: "Galletas de pan", compra: 40, venta: 50, oferta: 45 , stock: 100 },
+            { id: 3, nombre: "Dolly", compra: 175, venta: 200, oferta: 190 , stock: 100 },
+            { id: 4, nombre: "Mantecado", compra: 100, venta: 125, oferta: 120 , stock: 100 },
+            { id: 5, nombre: "Cortado", compra: 85, venta: 100, oferta: 95 , stock: 100 },
+            { id: 6, nombre: "Ojadra", compra: 85, venta: 100, oferta: 95 , stock: 100 },
+            { id: 7, nombre: "Galletas de ajo", compra: 180, venta: 200, oferta: 190 , stock: 100 },
+            { id: 8, nombre: "Rabito", compra: 85, venta: 100, oferta: 95 , stock: 100 },
+            { id: 9, nombre: "Dulce de Leche", compra: 85, venta: 100, oferta: 95 , stock: 100 },
+            { id: 10, nombre: "Suspiro", compra: 85, venta: 100, oferta: 95 , stock: 100 },
+            { id: 11, nombre: "Palito de ajo", compra: 100, venta: 125, oferta: 120, stock: 100 },
+            { id: 12, nombre: "Pastelitos", compra: 85, venta: 100, oferta:95, stock: 100 },
+            { id: 13, nombre: "Coquito", compra: 85, venta: 100, oferta: 95, stock: 100 },
+            { id: 14, nombre: "Torta amarilla", compra: 85, venta: 100,oferta: 95, stock: 100 },
+            { id: 15, nombre: "Cocada", compra: 85, venta: 100, oferta: 95, stock: 100 },
+            { id: 16, nombre: "Azucarada", compra: 85, venta: 100, oferta: 95, stock: 100 },
+            { id: 17, nombre: "Mofin", compra: 85, venta: 100, oferta: 95, stock: 100 },
+            { id: 18, nombre: "Pisina", compra: 85, venta: 100, oferta: 95, stock: 100 },
+            { id: 19, nombre: "Polvorín", compra: 85, venta: 100, oferta: 95, stock: 100 },
+            { id: 20, nombre: "Pudín", compra: 40, venta: 50, oferta: 45, stock: 100 }
         ];
 
-        let ventas = [];
+        let venta = [];
 
         // 2. Inicializar la interfaz al cargar la página
-        function inicializar() {
-            const select = document.getElementById('productSelect');
-            select.innerHTML = '';
-            productos.forEach(p => {
-                let option = document.createElement('option');
-                option.value = p.id;
-                option.textContent = `${p.nombre} (Venta: $${p.venta})`;
-                select.appendChild(option);
-            });
-            actualizarTablaInventario();
-            actualizarReportes();
-        }
+       function inicializar() {
+    const select = document.getElementById('productSelect');
+    select.innerHTML = ' ';
+    
+    
+        
+productos.forEach(p => {
+    let option = document.createElement('option');
+    option.value = p.id;
 
-        // 3. Renderizar la tabla de inventario
-        function actualizarTablaInventario() {
-            const tbody = document.getElementById('inventoryTableBody');
-            tbody.innerHTML = '';
-            productos.forEach(p => {
-                let margen = p.venta - p.compra;
-                let tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${p.nombre}</td>
-                    <td>$${p.compra.toFixed(2)}</td>
-                    <td>$${p.venta.toFixed(2)}</td>
-                    <td style="color: var(--success-color); font-weight: bold;">$${margen.toFixed(2)}</td>
-                    <td>${p.stock}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
+    option.textContent =
+        `${p.nombre} - Regular: $${p.venta} | Oferta: $${p.oferta}`;
 
-        // 4. Registrar una nueva venta
-        function registrarVenta() {
-            const productId = parseInt(document.getElementById('productSelect').value);
-            const cantidad = parseInt(document.getElementById('quantityInput').value);
+    select.appendChild(option);
+});
 
-            const producto = productos.find(p => p.id === productId);
+    
+    
+    actualizarTablaInventario();
+    actualizarReportes();
+}
 
-            if (!producto || isNaN(cantidad) || cantidad <= 0) {
-                alert("Por favor, selecciona una cantidad válida.");
-                return;
-            }
+     function actualizarTablaInventario() {
+    const tbody = document.getElementById('inventoryTableBody');
+    tbody.innerHTML = '';
+    
+    productos.forEach(p => {
+        // Determinamos el precio de venta actual (si hay oferta usa la oferta, sino el regular)
+        let precioAplicado = (p.oferta !== null && p.oferta > 0) ? p.oferta : p.venta;
+        let margen = precioAplicado - p.compra;
+        
+        let tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${p.nombre}</td>
+            <td>$${p.compra.toFixed(2)}</td>
+            <td>
+                ${p.oferta !== null && p.oferta > 0 
+                    ? `<span style="text-decoration: line-through; color: #999;">$${p.venta.toFixed(2)}</span> <strong style="color: #e74c3c;">$${p.oferta.toFixed(2)}</strong>` 
+                    : `$${p.venta.toFixed(2)}`}
+            </td>
+            <td style="color: var(--success-color); font-weight: bold;">$${margen.toFixed(2)}</td>
+            <td>${p.stock}</td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
 
-            if (producto.stock < cantidad) {
-                alert("No hay suficiente stock disponible.");
-                return;
-            }
+     function registrarVenta() {
+    const productId = parseInt(document.getElementById('productSelect').value);
+    const cantidad = parseInt(document.getElementById('quantityInput').value);
 
-            // Descontar stock
-            producto.stock -= cantidad;
+    const producto = productos.find(p => p.id === productId);
 
-            // Registrar la venta
-            ventas.push({
-                productoId: producto.id,
-                cantidad: cantidad,
-                gananciaBruta: (producto.venta - producto.compra) * cantidad,
-                fecha: new Date()
-            });
+    if (!producto || isNaN(cantidad) || cantidad <= 0) {
+        alert("Por favor, selecciona una cantidad válida.");
+        return;
+    }
+
+    if (producto.stock < cantidad) {
+        alert("No hay suficiente stock disponible.");
+        return;
+    }
+
+   
+const tipoPrecio = document.getElementById('tipoPrecio').value;
+
+let precioFinalVenta;
+
+if (tipoPrecio === "oferta") {
+    if (producto.oferta == null || producto.oferta <= 0) {
+        alert("Este producto no tiene una oferta disponible.");
+        return;
+    }
+
+    precioFinalVenta = producto.oferta;
+} else {
+    precioFinalVenta = producto.venta;
+}
+
+
+    // Descontar stock
+    producto.stock -= cantidad;
+
+    // Registrar la venta con el precio real aplicado
+    venta.push({
+        productoId: producto.id,
+        cantidad: cantidad,
+        precioVentaAplicado: precioFinalVenta,
+        gananciaBruta: (precioFinalVenta - producto.compra) * cantidad,
+        fecha: new Date()
+    });
+
+    // Actualizar interfaz
+    actualizarTablaInventario();
+    actualizarReportes();
+    document.getElementById('quantityInput').value = 1;
+}
 
             // Actualizar interfaz
             actualizarTablaInventario();
             actualizarReportes();
             document.getElementById('quantityInput').value = 1;
-        }
-
+        
+    
         // 5. Calcular reportes
         function actualizarReportes() {
-            let totalBruto = ventas.reduce((acc, v) => acc + v.gananciaBruta, 0);
+            let totalBruto = venta.reduce((acc, v) => acc + v.gananciaBruta, 0);
             
             // Suponiendo gastos en 0 por defecto o simulados
             let totalNeto = totalBruto; 
