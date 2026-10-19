@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Inventario y Ventas</title>
+    <!-- Font Awesome para íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --primary-hover: #2980b9;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --dark-color: #2c3e50;
+            --light-color: #f8f9fa;
+            --gray-color: #e9ecef;
+            --text-color: #333333;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light-color);
+            color: var(--text-color);
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1, h2 {
+            color: var(--dark-color);
+            margin-bottom: 1.5rem;
+        }
+
+        /* --- TARJETAS DE REPORTES --- */
+        .reports-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .card h3 {
+            font-size: 1rem;
+            color: #7f8c8d;
+            margin-bottom: 0.5rem;
+        }
+
+        .card p {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--success-color);
+        }
+
+        /* --- SECCIÓN DE VENTAS --- */
+        .sale-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-group select, .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            align-self: flex-end;
+            margin-bottom: 1rem;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* --- TABLA DE INVENTARIO --- */
+        .inventory-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid var(--gray-color);
+        }
+
+        th {
+            background-color: var(--dark-color);
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Gestión de Inventario y Reportes</h1>
+
+        <!-- PANEL DE REPORTES -->
+        <div class="reports-grid">
+            <div class="card">
+                <h3>Ganancia Bruta (Hoy)</h3>
+                <p id="grossProfit">$0.00</p>
+            </div>
+            <div class="card">
+                <h3>Ganancia Neta (Hoy)</h3>
+                <p id="netProfit">$0.00</p>
+            </div>
+        </div>
+
+        <!-- SIMULAR VENTA -->
+        <div class="sale-section">
+            <h2>Registrar Venta</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="productSelect">Seleccione un producto:</label>
+                    <select id="productSelect"></select>
+                </div>
+                <div class="form-group">
+                    <label for="quantityInput">Cantidad:</label>
+                    <input type="number" id="quantityInput" min="1" value="1">
+                </div>
+                <button class="btn" onclick="registrarVenta()">Registrar Venta</button>
+            </div>
+        </div>
+
+        <!-- TABLA DE INVENTARIO -->
+        <div class="inventory-section">
+            <h2>Inventario Actual</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Costo (Compra)</th>
+                        <th>Precio (Venta)</th>
+                        <th>Margen Unitario</th>
+                        <th>Stock</th>
+                    </tr>
+                </thead>
+                <tbody id="inventoryTableBody">
+                    <!-- Rellenado por JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // 1. Base de datos inicial con tus productos
+        let productos = [
+            { id: 1, nombre: "Pan", compra: 38, venta: 50, stock: 100 },
+            { id: 2, nombre: "Galletas de pan", compra: 40, venta: 50, stock: 100 },
+            { id: 3, nombre: "Dolly", compra: 175, venta: 200, stock: 100 },
+            { id: 4, nombre: "Mantecado", compra: 100, venta: 125, stock: 100 },
+            { id: 5, nombre: "Cortado", compra: 85, venta: 100, stock: 100 },
+            { id: 6, nombre: "Ojadra", compra: 85, venta: 100, stock: 100 },
+            { id: 7, nombre: "Galletas de ajo", compra: 180, venta: 200, stock: 100 },
+            { id: 8, nombre: "Rabito", compra: 85, venta: 100, stock: 100 },
+            { id: 9, nombre: "Dulce de Leche", compra: 85, venta: 100, stock: 100 },
+            { id: 10, nombre: "Suspiro", compra: 85, venta: 100, stock: 100 },
+            { id: 11, nombre: "Palito de ajo", compra: 100, venta: 125, stock: 100 },
+            { id: 12, nombre: "Pastelitos", compra: 85, venta: 100, stock: 100 },
+            { id: 13, nombre: "Coquito", compra: 85, venta: 100, stock: 100 },
+            { id: 14, nombre: "Torta amarilla", compra: 85, venta: 100, stock: 100 },
+            { id: 15, nombre: "Cocada", compra: 85, venta: 100, stock: 100 },
+            { id: 16, nombre: "Azucarada", compra: 85, venta: 100, stock: 100 },
+            { id: 17, nombre: "Mofin", compra: 85, venta: 100, stock: 100 },
+            { id: 18, nombre: "Pisina", compra: 85, venta: 100, stock: 100 },
+            { id: 19, nombre: "Polvorín", compra: 85, venta: 100, stock: 100 },
+            { id: 20, nombre: "Pudín", compra: 40, venta: 50, stock: 100 }
+        ];
+
+        let ventas = [];
+
+        // 2. Inicializar la interfaz al cargar la página
+        function inicializar() {
+            const select = document.getElementById('productSelect');
+            select.innerHTML = '';
+            productos.forEach(p => {
+                let option = document.createElement('option');
+                option.value = p.id;
+                option.textContent = `${p.nombre} (Venta: $${p.venta})`;
+                select.appendChild(option);
+            });
+            actualizarTablaInventario();
+            actualizarReportes();
+        }
+
+        // 3. Renderizar la tabla de inventario
+        function actualizarTablaInventario() {
+            const tbody = document.getElementById('inventoryTableBody');
+            tbody.innerHTML = '';
+            productos.forEach(p => {
+                let margen = p.venta - p.compra;
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${p.nombre}</td>
+                    <td>$${p.compra.toFixed(2)}</td>
+                    <td>$${p.venta.toFixed(2)}</td>
+                    <td style="color: var(--success-color); font-weight: bold;">$${margen.toFixed(2)}</td>
+                    <td>${p.stock}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 4. Registrar una nueva venta
+        function registrarVenta() {
+            const productId = parseInt(document.getElementById('productSelect').value);
+            const cantidad = parseInt(document.getElementById('quantityInput').value);
+
+            const producto = productos.find(p => p.id === productId);
+
+            if (!producto || isNaN(cantidad) || cantidad <= 0) {
+                alert("Por favor, selecciona una cantidad válida.");
+                return;
+            }
+
+            if (producto.stock < cantidad) {
+                alert("No hay suficiente stock disponible.");
+                return;
+            }
+
+            // Descontar stock
+            producto.stock -= cantidad;
+
+            // Registrar la venta
+            ventas.push({
+                productoId: producto.id,
+                cantidad: cantidad,
+                gananciaBruta: (producto.venta - producto.compra) * cantidad,
+                fecha: new Date()
+            });
+
+            // Actualizar interfaz
+            actualizarTablaInventario();
+            actualizarReportes();
+            document.getElementById('quantityInput').value = 1;
+        }
+
+        // 5. Calcular reportes
+        function actualizarReportes() {
+            let totalBruto = ventas.reduce((acc, v) => acc + v.gananciaBruta, 0);
+            
+            // Suponiendo gastos en 0 por defecto o simulados
+            let totalNeto = totalBruto; 
+
+            document.getElementById('grossProfit').textContent = `$${totalBruto.toFixed(2)}`;
+            document.getElementById('netProfit').textContent = `$${totalNeto.toFixed(2)}`;
+        }
+
+        // Ejecutar al iniciar
+        window.onload = inicializar;
+    </script>
+</body>
+</html>
